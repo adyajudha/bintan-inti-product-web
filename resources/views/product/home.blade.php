@@ -78,14 +78,19 @@
     </div>
  
     <script>
+        // Link
         var SITEURL = 'http://127.0.0.1:8000/';
         console.log(SITEURL);
+
         $(document).ready(function() {
+            // Token security
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
+
+            // Datatable
             $('#laravel_11_datatable').DataTable({
                 processing: true,
                 serverSide: true,
@@ -131,7 +136,8 @@
                     [0, 'desc']
                 ]
             });
- 
+
+            // New Product
             $('#create-new-product').click(function() {
                 $('#btn-save').val("create-product");
                 $('#product_id').val('');
@@ -140,7 +146,8 @@
                 $('#ajax-product-modal').modal('show');
                 $('#modal-preview').attr('src', 'https://via.placeholder.com/150');
             });
- 
+
+            // Edit Product
             $('body').on('click', '.edit-product', function() {
                 var product_id = $(this).data('id');
                 console.log(product_id);
@@ -162,7 +169,8 @@
                     }
                 })
             });
- 
+
+            // Delete Product
             $('body').on('click', '#delete-product', function() {
                 var product_id = $(this).data("id");
                 if (confirm("Are You sure want to delete !")) {
@@ -182,6 +190,7 @@
              
         });
 
+        // Form Product
         $('body').on('submit', '#productForm', function(e) {
             e.preventDefault();
             var actionType = $('#btn-save').val();
@@ -208,7 +217,8 @@
                 }
             });
         });
- 
+
+        // Membaca Link
         function readURL(input, id) {
             id = id || '#modal-preview';
             if (input.files && input.files[0]) {
