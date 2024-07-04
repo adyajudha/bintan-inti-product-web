@@ -41,7 +41,11 @@ class ProductController extends Controller
         request()->validate([
             'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
-        $productId = $request->product_id;
+        $productId ='';
+        if($request->has('product_id')){
+            $productId = $request->product_id;
+        }
+        
 
         $image = $request->hidden_image;
 
@@ -68,7 +72,13 @@ class ProductController extends Controller
         // Save the product
         $product->save();
 
-        return Response::json($product);
+        return response()->json(['success' => true, 'message' => 'Successfully']);
+    //    if($request->has('product_id')){
+    //         return response()->json(['success' => true, 'message' => 'Product updated successfully']);
+    //    }else{
+    //         return response()->json(['success' => true, 'message' => 'Product created successfully']);
+    //    }
+        
     }
 
     /**
@@ -82,12 +92,13 @@ class ProductController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
         $where = array('id' => $id);
         $product  = Product::where($where)->first();
 
-        return Response::json($product);
+        return response()->json($product);
+        // return response()->json(['success' => true, 'message' => 'Product updated successfully']);
     }
 
     /**

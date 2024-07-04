@@ -88,6 +88,7 @@
             }
         });
 
+        // AJAX SETUP
         $(document).ready(function() {
             $('#laravel_11_datatable').DataTable({
                 processing: true,
@@ -146,8 +147,9 @@
                     $('#laravel_11_datatable').DataTable().ajax.reload();
                     Swal.fire({
                         icon: 'success',
-                        title: 'Product added successfully!',
-                        showConfirmButton: false,
+                        title: data.message,
+                        // title: 'Product added successfully!',
+                        showConfirmButton: true,
                         timer: 2000
                     });
                 },
@@ -158,6 +160,7 @@
             });
         });
 
+        // Show
         function showProductModal(id) {
             $.ajax({
                 type: "GET",
@@ -181,7 +184,7 @@
                 }
             });
         }
-
+        // DELETE
         function deleteProduct(id) {
             if (confirm("Are you sure you want to delete this product?")) {
                 $.ajax({
@@ -202,7 +205,7 @@
                 });
             }
         }
-
+        // READ URL
         function readURL(input) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
