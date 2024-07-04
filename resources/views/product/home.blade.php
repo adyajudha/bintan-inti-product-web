@@ -9,6 +9,7 @@
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
     <link href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet">
     <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
  
 <body>
@@ -30,7 +31,7 @@
             </thead>
         </table>
     </div>
- 
+
     <div class="modal fade" id="ajax-product-modal" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -41,25 +42,25 @@
                     <form id="productForm" name="productForm" class="form-horizontal" enctype="multipart/form-data">
                         <input type="hidden" name="product_id" id="product_id">
                         <div class="form-group">
-                            <label for="name" class="col-sm-2 control-label">Title</label>
+                            <label for="title" class="col-sm-2 control-label">Title</label>
                             <div class="col-sm-12">
-                                <input type="text" class="form-control" id="title" name="title" placeholder="Enter Tilte" value="" maxlength="50" required="">
+                                <input type="text" class="form-control" id="title" name="title" placeholder="Enter Title" maxlength="50" required>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="name" class="col-sm-2 control-label">Category</label>
+                            <label for="category" class="col-sm-2 control-label">Category</label>
                             <div class="col-sm-12">
-                                <input type="text" class="form-control" id="category" name="category" placeholder="Enter Category" value="" maxlength="50" required="">
+                                <input type="text" class="form-control" id="category" name="category" placeholder="Enter Category" maxlength="50" required>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-2 control-label">Price</label>
+                            <label for="price" class="col-sm-2 control-label">Price</label>
                             <div class="col-sm-12">
-                                <input type="text" class="form-control" id="price" name="price" placeholder="Enter Price" value="" required="">
+                                <input type="text" class="form-control" id="price" name="price" placeholder="Enter Price" required>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-2 control-label">Image</label>
+                            <label for="image" class="col-sm-2 control-label">Image</label>
                             <div class="col-sm-12">
                                 <input id="image" type="file" name="image" accept="image/*" onchange="readURL(this);">
                                 <input type="hidden" name="hidden_image" id="hidden_image">
@@ -71,26 +72,23 @@
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                </div>
             </div>
         </div>
     </div>
  
     <script>
+        
         // Link
-        var SITEURL = 'http://127.0.0.1:8000/';
-        console.log(SITEURL);
+        var SITEURL = '{{ url('/') }}/';
+
+        // Token security
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
 
         $(document).ready(function() {
-            // Token security
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            // Datatable
             $('#laravel_11_datatable').DataTable({
                 processing: true,
                 serverSide: true,
@@ -98,46 +96,18 @@
                     url: SITEURL + "products",
                     type: 'GET',
                 },
-                columns: [{
-                        data: 'id',
-                        name: 'id',
-                        'visible': false
-                    },
-                    {
-                        data: 'DT_RowIndex',
-                        name: 'DT_RowIndex',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'title',
-                        name: 'title'
-                    },
-                    {
-                        data: 'category',
-                        name: 'category'
-                    },
-                    {
-                        data: 'price',
-                        name: 'price'
-                    },
-                    {
-                        data: 'image',
-                        name: 'image',
-                        orderable: false
-                    },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false
-                    },
+                columns: [
+                    { data: 'id', name: 'id', 'visible': false },
+                    { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+                    { data: 'title', name: 'title' },
+                    { data: 'category', name: 'category' },
+                    { data: 'price', name: 'price' },
+                    { data: 'image', name: 'image', orderable: false },
+                    { data: 'action', name: 'action', orderable: false }
                 ],
-                order: [
-                    [0, 'desc']
-                ]
+                order: [[0, 'desc']]
             });
 
-            // New Product
             $('#create-new-product').click(function() {
                 $('#btn-save').val("create-product");
                 $('#product_id').val('');
@@ -147,55 +117,21 @@
                 $('#modal-preview').attr('src', 'https://via.placeholder.com/150');
             });
 
-            // Edit Product
             $('body').on('click', '.edit-product', function() {
                 var product_id = $(this).data('id');
-                console.log(product_id);
-                $.get('products/Edit/' + product_id, function(data) {
-                    $('#title-error').hide();
-                    $('#product_category-error').hide();
-                    $('#category-error').hide();
-                    $('#productCrudModal').html("Edit Product");
-                    $('#btn-save').val("edit-product");
-                    $('#ajax-product-modal').modal('show');
-                    $('#product_id').val(data.id);
-                    $('#title').val(data.title);
-                    $('#category').val(data.category);
-                    $('#hidden_image').val(data.image);
-                    $('#price').val(data.price);
-                    $('#modal-preview').attr('alt', 'No image available');
-                    if (data.image) {
-                        $('#modal-preview').attr('src', SITEURL + 'public/product/' + data.image);
-                    }
-                })
+                showProductModal(product_id);
             });
 
-            // Delete Product
             $('body').on('click', '#delete-product', function() {
                 var product_id = $(this).data("id");
-                if (confirm("Are You sure want to delete !")) {
-                    $.ajax({
-                        type: "GET",
-                        url: SITEURL + "products/Delete/" + product_id,
-                        success: function(data) {
-                            var oTable = $('#laravel_11_datatable').dataTable();
-                            oTable.fnDraw(false);
-                        },
-                        error: function(data) {
-                            console.log('Error:', data);
-                        }
-                    });
-                }
+                deleteProduct(product_id);
             });
-             
         });
 
-        // Form Product
-        $('body').on('submit', '#productForm', function(e) {
+        $('#productForm').submit(function(e) {
             e.preventDefault();
-            var actionType = $('#btn-save').val();
-            $('#btn-save').html('Sending..');
             var formData = new FormData(this);
+            $('#btn-save').html('Sending..');
             $.ajax({
                 type: 'POST',
                 url: SITEURL + "products/Store",
@@ -204,31 +140,76 @@
                 contentType: false,
                 processData: false,
                 success: (data) => {
-                    console.log(data);
+                    $('#btn-save').html('Save Changes');
                     $('#productForm').trigger("reset");
                     $('#ajax-product-modal').modal('hide');
-                    $('#btn-save').html('Save Changes');
-                    var oTable = $('#laravel_11_datatable').dataTable();
-                    oTable.fnDraw(false);
+                    $('#laravel_11_datatable').DataTable().ajax.reload();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Product added successfully!',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
                 },
                 error: function(data) {
-                    console.log('Error:', data);
                     $('#btn-save').html('Save Changes');
+                    console.log('Error:', data);
                 }
             });
         });
 
-        // Membaca Link
-        function readURL(input, id) {
-            id = id || '#modal-preview';
+        function showProductModal(id) {
+            $.ajax({
+                type: "GET",
+                url: SITEURL + "products/Edit/" + id,
+                dataType: 'json',
+                success: function(data) {
+                    $('#productCrudModal').html("Edit Product");
+                    $('#btn-save').val("edit-product");
+                    $('#ajax-product-modal').modal('show');
+                    $('#product_id').val(data.id);
+                    $('#title').val(data.title);
+                    $('#category').val(data.category);
+                    $('#price').val(data.price);
+                    if (data.image) {
+                        $('#modal-preview').attr('src', SITEURL + 'public/product/' + data.image);
+                        $('#hidden_image').val(data.image);
+                    } else {
+                        $('#modal-preview').attr('src', 'https://via.placeholder.com/150');
+                        $('#hidden_image').attr('src', 'https://via.placeholder.com/150');
+                    }
+                }
+            });
+        }
+
+        function deleteProduct(id) {
+            if (confirm("Are you sure you want to delete this product?")) {
+                $.ajax({
+                    type: "DELETE",
+                    url: SITEURL + "products/Delete/" + id,
+                    success: function(data) {
+                        $('#laravel_11_datatable').DataTable().ajax.reload();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Product deleted successfully!',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    },
+                    error: function(data) {
+                        console.log('Error:', data);
+                    }
+                });
+            }
+        }
+
+        function readURL(input) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
                 reader.onload = function(e) {
-                    $(id).attr('src', e.target.result);
-                };
+                    $('#modal-preview').attr('src', e.target.result);
+                }
                 reader.readAsDataURL(input.files[0]);
-                $('#modal-preview').removeClass('hidden');
-                $('#start').hide();
             }
         }
     </script>

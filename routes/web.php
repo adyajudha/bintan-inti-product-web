@@ -10,4 +10,6 @@ Route::get('/', function () {
 Route::get('products', [ProductController::class, 'index']);
 Route::get('products/Edit/{id}/', [ProductController::class, 'edit']);
 Route::post('products/Store', [ProductController::class, 'store']);
-Route::get('products/Delete/{id}', [ProductController::class, 'destroy']);
+Route::delete('products/Delete/{id}', [ProductController::class, 'destroy']);
+
+// Route::resource('products', ProductController::class);
