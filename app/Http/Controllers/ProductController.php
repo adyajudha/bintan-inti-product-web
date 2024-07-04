@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use Response;
-use DataTables;
+use Yajra\DataTables\DataTables;
 
 class ProductController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
         if (request()->ajax()) {
@@ -22,6 +25,17 @@ class ProductController extends Controller
         return view('product.home');
     }
 
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
         request()->validate([
@@ -31,22 +45,17 @@ class ProductController extends Controller
 
         $image = $request->hidden_image;
 
-        if($request->has('image')){
-            if ($files = $request->file('image')) {
+        if ($files = $request->file('image')) {
 
-                //delete old file
-                \File::delete('public/product/' . $request->hidden_image);
+            //delete old file
+            \File::delete('public/product/' . $request->hidden_image);
 
-                //insert new file
-                $destinationPath = 'public/product/'; // upload path
-                $profileImage = date('YmdHis') . "." . $files->getClientOriginalExtension();
-                $files->move($destinationPath, $profileImage);
-                $image = "$profileImage";
-            }
-        }elseif($request->has('hidden_image')){
-            $image = $request->hidden_image;
+            //insert new file
+            $destinationPath = 'public/product/'; // upload path
+            $profileImage = date('YmdHis') . "." . $files->getClientOriginalExtension();
+            $files->move($destinationPath, $profileImage);
+            $image = "$profileImage";
         }
-
 
         $product = Product::find($productId) ?? new Product();
         // Set the individual attributes
@@ -62,7 +71,18 @@ class ProductController extends Controller
         return Response::json($product);
     }
 
-    public function edit($id)
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
     {
         $where = array('id' => $id);
         $product  = Product::where($where)->first();
@@ -70,7 +90,18 @@ class ProductController extends Controller
         return Response::json($product);
     }
 
-    public function destroy($id)
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
     {
         $data = Product::where('id', $id)->first(['image']);
         \File::delete('public/product/' . $data->image);
